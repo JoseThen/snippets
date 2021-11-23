@@ -7,6 +7,12 @@ import (
 	"os"
 )
 
+// Struct to hold application wide dependencies/configuration
+type application struct {
+	errorLog *log.Logger
+	infoLog  *log.Logger
+}
+
 func main() {
 	// Define a flag for the port the application runs on
 	addr := flag.String("addr", ":4000", "HTTP network address")
@@ -19,12 +25,18 @@ func main() {
 	// Create an error logger, but write to stderr and use `Lshortfile` to include file name and line number
 	errorLog := log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.LUTC|log.Lshortfile)
 
+	// Init an new instance of the application containing dependencies
+	app := &application{
+		errorLog: errorLog,
+		infoLog:  infoLog,
+	}
+
 	// Create a new ServeMux
 	mux := http.NewServeMux()
 	// Use the home function as the handler for the "/" path
-	mux.HandleFunc("/", home)
-	mux.HandleFunc("/snippet", showSnippet)
-	mux.HandleFunc("/snippet/create", createSnippet)
+	mux.HandleFunc("/", app.home)
+	mux.HandleFunc("/snippet", app.showSnippet)
+	mux.HandleFunc("/snippet/create", app.createSnippet)
 
 	// Create a file server which serves files from the "ui/static" directory.
 	// note how the path is relative to the directory root

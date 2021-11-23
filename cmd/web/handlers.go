@@ -3,13 +3,12 @@ package main
 import (
 	"fmt"
 	"html/template"
-	"log"
 	"net/http"
 	"strconv"
 )
 
 // Define a handler function for the homepage that writes "Hello from Snippetbox"
-func home(w http.ResponseWriter, r *http.Request) {
+func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	// Because the "/" path is a catchall and will route here, we need to check if the request is for the homepage
 	if r.URL.Path != "/" {
 		// If it isn't the homepage, then return a 404 not found error
@@ -28,7 +27,7 @@ func home(w http.ResponseWriter, r *http.Request) {
 	// if there is an error return with a 500 error
 	ts, err := template.ParseFiles(files...)
 	if err != nil {
-		log.Println(err.Error())
+		app.errorLog.Println(err.Error())
 		http.Error(w, "Internal Server Error", 500)
 		return
 	}
@@ -37,14 +36,14 @@ func home(w http.ResponseWriter, r *http.Request) {
 	// In other words return/run the template and if there is an error return a 500 error
 	err = ts.Execute(w, nil)
 	if err != nil {
-		log.Println(err.Error())
+		app.errorLog.Println(err.Error())
 		http.Error(w, "Internal Server Error", 500)
 		return
 	}
 }
 
 // showSnippet handler function
-func showSnippet(w http.ResponseWriter, r *http.Request) {
+func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {
 	// Fetch the ID from the URL query param and if its less than 1 or not a number, return a 400 Bad Request error
 	id, err := strconv.Atoi(r.URL.Query().Get("id"))
 	if err != nil || id < 1 {
@@ -56,7 +55,7 @@ func showSnippet(w http.ResponseWriter, r *http.Request) {
 }
 
 // createSnippet handler function
-func createSnippet(w http.ResponseWriter, r *http.Request) {
+func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {
 	// Only allow POST requests
 	if r.Method != "POST" {
 		// If not a post, respond with which methods are allowed
