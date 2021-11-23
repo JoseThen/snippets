@@ -1,11 +1,16 @@
 package main
 
 import (
+	"flag"
 	"log"
 	"net/http"
 )
 
 func main() {
+	// Define a flag for the port the application runs on
+	addr := flag.String("addr", ":4000", "HTTP network address")
+	// Parse the command line flag. Need to call before you use the variable.
+	flag.Parse()
 	// Create a new ServeMux
 	mux := http.NewServeMux()
 	// Use the home function as the handler for the "/" path
@@ -22,9 +27,10 @@ func main() {
 	// "/static" prefix before the request reaches the file server.
 	mux.Handle("/static/", http.StripPrefix("/static", fileServer))
 
-	log.Println("Listening on :4000")
+	// Value returned by `flag.String()` is a pointer, not the actual value so we devalue that with '*'
+	log.Printf("Listening on %s", *addr)
 	// Use http.ListenAndServe to start the server on the specified port using our created mux.
 	// If it returns an error then log it and exit the program.
-	err := http.ListenAndServe(":4000", mux)
+	err := http.ListenAndServe(*addr, mux)
 	log.Fatal(err)
 }
