@@ -1,10 +1,13 @@
 package main
 
 import (
+	"database/sql"
 	"flag"
 	"log"
 	"net/http"
 	"os"
+
+	_ "github.com/go-sql-driver/mysql"
 )
 
 // Struct to hold application wide dependencies/configuration
@@ -16,6 +19,8 @@ type application struct {
 func main() {
 	// Define a flag for the port the application runs on
 	addr := flag.String("addr", ":4000", "HTTP network address")
+	// Flag for the MySQL DSN string
+	dsn := flag.String("dsn", "web:password@/snippetbox?parseTime=true", "MySQL data source name")
 	// Parse the command line flag. Need to call before you use the variable.
 	flag.Parse()
 
@@ -24,6 +29,16 @@ func main() {
 
 	// Create an error logger, but write to stderr and use `Lshortfile` to include file name and line number
 	errorLog := log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.LUTC|log.Lshortfile)
+
+	// To keep the main() function tidy I've put the code for creating a connection
+	// pool into the separate openDB() function below. We pass openDB() the DSN
+	// from the command-line flag.
+	db, err := openDB(*dsn)
+	if err != nil {
+		errorLog.Fatal(err)
+	}
+	// Close the db before the main function exits
+	defer db.Close()
 
 	// Init an new instance of the application containing dependencies
 	app := &application{
@@ -45,6 +60,18 @@ func main() {
 	infoLog.Printf("Listening on %s", *addr)
 	// Call the ListenAndServe() method on our new http.Server struct.
 	// If it returns an error then log it and exit the program.
-	err := srv.ListenAndServe()
+	// `err =` instead of `err :=` because its declared already above
+	err = srv.ListenAndServe()
 	errorLog.Fatal(err)
+}
+
+func openDB(dsn string) (*sql.DB, error) {
+	db, err := sql.Open("mysql", dsn)
+	if err != nil {
+		return nil, err
+	}
+	if err = db.Ping(); err != nil {
+		return nil, err
+	}
+	return db, nil
 }
