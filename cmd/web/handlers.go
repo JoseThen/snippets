@@ -1,10 +1,13 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"html/template"
 	"net/http"
 	"strconv"
+
+	"github.com/JoseThen/snippets/pkg/models"
 )
 
 // Define a handler function for the homepage that writes "Hello from Snippetbox"
@@ -46,8 +49,18 @@ func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {
 		app.notFound(w)
 		return
 	}
-	// Write the snippet text to the response
-	fmt.Fprintf(w, "Display a specific snippet with ID %d...", id)
+
+	snippet, err := app.snippets.Get(id)
+	if err != nil {
+		if errors.Is(err, models.ErrNoRecord) {
+			app.notFound(w)
+		} else {
+			app.serverError(w, err)
+		}
+		return
+	}
+
+	fmt.Fprintf(w, "%v", snippet)
 }
 
 // createSnippet handler function
