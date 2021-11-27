@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"net/http"
 	"runtime/debug"
@@ -33,10 +34,17 @@ func (app *application) render(w http.ResponseWriter, r *http.Request, name stri
 		return
 	}
 
-	// Exectue the template set
-	err := ts.Execute(w, td)
+	// Init a buffer to hold template inside
+	buf := new(bytes.Buffer)
+
+	// Write the template to the buffer instead of to the http.ResponseWriter. If there is an error return serverError
+	err := ts.Execute(buf, td)
 	if err != nil {
 		app.serverError(w, err)
+		return
 	}
+
+	// Exectue the template set if no error in buffer
+	buf.WriteTo(w)
 
 }
