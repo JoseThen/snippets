@@ -25,30 +25,28 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	for _, snippet := range snippets {
-		fmt.Fprintf(w, "%v\n", snippet)
-	}
+	data := &templateData{Snippets: snippets}
 
 	// Setup a slice with the paths to your files needed. the homepage must be first
-	// files := []string{
-	// 	"./ui/html/home.page.tmpl",
-	// 	"./ui/html/base.layout.tmpl",
-	// 	"./ui/html/footer.partial.tmpl",
-	// }
+	files := []string{
+		"./ui/html/home.page.tmpl",
+		"./ui/html/base.layout.tmpl",
+		"./ui/html/footer.partial.tmpl",
+	}
 
-	// // Use the template.ParseFiles function to parse the files slice
-	// // if there is an error return with a 500 error
-	// ts, err := template.ParseFiles(files...)
-	// if err != nil {
-	// 	app.serverError(w, err)
-	// }
+	// Use the template.ParseFiles function to parse the files slice
+	// if there is an error return with a 500 error
+	ts, err := template.ParseFiles(files...)
+	if err != nil {
+		app.serverError(w, err)
+	}
 
-	// // Execute the template and if there is an error return with a 500 error
-	// // In other words return/run the template and if there is an error return a 500 error
-	// err = ts.Execute(w, nil)
-	// if err != nil {
-	// 	app.serverError(w, err)
-	// }
+	// Execute the template and if there is an error return with a 500 error
+	// In other words return/run the template and if there is an error return a 500 error
+	err = ts.Execute(w, data)
+	if err != nil {
+		app.serverError(w, err)
+	}
 }
 
 // showSnippet handler function
