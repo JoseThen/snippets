@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"runtime/debug"
+	"time"
 )
 
 // The serverError helper writes an error message and stack trace to the errorLog,
@@ -26,6 +27,16 @@ func (app *application) notFound(w http.ResponseWriter) {
 	app.clientError(w, http.StatusNotFound)
 }
 
+func (app *application) addDefaultData(td *templateData, r *http.Request) *templateData {
+	// If the templateData parameter has no information inside, then turn it into one
+	if td == nil {
+		td = &templateData{}
+	}
+	// add current Year and return
+	td.CurrentYear = time.Now().Year()
+	return td
+}
+
 func (app *application) render(w http.ResponseWriter, r *http.Request, name string, td *templateData) {
 	// Retrieve the template you want to render, then render it
 	ts, ok := app.templateCache[name]
@@ -38,7 +49,9 @@ func (app *application) render(w http.ResponseWriter, r *http.Request, name stri
 	buf := new(bytes.Buffer)
 
 	// Write the template to the buffer instead of to the http.ResponseWriter. If there is an error return serverError
-	err := ts.Execute(buf, td)
+	// Execute the template set, passing the dynamic data with the current
+	// year injected.
+	err := ts.Execute(buf, app.addDefaultData(td, r))
 	if err != nil {
 		app.serverError(w, err)
 		return
@@ -46,5 +59,4 @@ func (app *application) render(w http.ResponseWriter, r *http.Request, name stri
 
 	// Exectue the template set if no error in buffer
 	buf.WriteTo(w)
-
 }
