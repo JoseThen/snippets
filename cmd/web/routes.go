@@ -22,5 +22,5 @@ func (app *application) routes() http.Handler {
 
 	// Return the ServeMux
 	// Chain middlewares
-	return app.logRequest(secureHeaders(mux))
+	return app.recoverPanic(app.logRequest(secureHeaders(mux)))
 }
