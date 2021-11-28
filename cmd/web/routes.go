@@ -1,9 +1,15 @@
 package main
 
-import "net/http"
+import (
+	"net/http"
+
+	"github.com/justinas/alice"
+)
 
 // Function returns an httphandler so that we can use it with our middleware
 func (app *application) routes() http.Handler {
+	// Create middleware chain containing the standard middleware for every reqyest
+	standardMiddleware := alice.New(app.recoverPanic, app.logRequest, secureHeaders)
 	// Create a new ServeMux
 	mux := http.NewServeMux()
 	// Use the home function as the handler for the "/" path
@@ -21,6 +27,6 @@ func (app *application) routes() http.Handler {
 	mux.Handle("/static/", http.StripPrefix("/static", fileServer))
 
 	// Return the ServeMux
-	// Chain middlewares
-	return app.recoverPanic(app.logRequest(secureHeaders(mux)))
+	// Return the standardMiddlware variable/chain with the mux as the final handler
+	return standardMiddleware.Then(mux)
 }
