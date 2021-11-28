@@ -2,7 +2,8 @@ package main
 
 import "net/http"
 
-func (app *application) routes() *http.ServeMux {
+// Function returns an httphandler so that we can use it with our middleware
+func (app *application) routes() http.Handler {
 	// Create a new ServeMux
 	mux := http.NewServeMux()
 	// Use the home function as the handler for the "/" path
@@ -19,5 +20,5 @@ func (app *application) routes() *http.ServeMux {
 	// "/static" prefix before the request reaches the file server.
 	mux.Handle("/static/", http.StripPrefix("/static", fileServer))
 
-	return mux
+	return secureHeaders(mux)
 }
