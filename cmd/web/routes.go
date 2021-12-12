@@ -15,8 +15,8 @@ func (app *application) routes() http.Handler {
 	mux := pat.New()
 	// Use the home function as the handler for the "/" path
 	mux.Get("/", http.HandlerFunc(app.home))
-	mux.Get("/snippet/create", http.HandlerFunc(app.createSnippet))
-	mux.Post("snippet/create", http.HandlerFunc(app.createSnippetForm))
+	mux.Get("/snippet/create", http.HandlerFunc(app.createSnippetForm))
+	mux.Post("/snippet/create", http.HandlerFunc(app.createSnippet))
 	mux.Get("/snippet/:id", http.HandlerFunc(app.showSnippet))
 
 	// Create a file server which serves files from the "ui/static" directory.
