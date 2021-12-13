@@ -85,10 +85,13 @@ func main() {
 	// the event of any problems.
 	// Set the server tls config for the http.Server struct
 	srv := &http.Server{
-		Addr:      *addr,
-		ErrorLog:  errorLog,
-		Handler:   app.routes(),
-		TLSConfig: tlsConfig,
+		Addr:         *addr,
+		ErrorLog:     errorLog,
+		Handler:      app.routes(),
+		TLSConfig:    tlsConfig,
+		IdleTimeout:  time.Minute,
+		ReadTimeout:  5 * time.Second,
+		WriteTimeout: 10 * time.Second,
 	}
 
 	// Value returned by `flag.String()` is a pointer, not the actual value so we devalue that with '*'
