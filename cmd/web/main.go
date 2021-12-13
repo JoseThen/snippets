@@ -59,6 +59,7 @@ func main() {
 	// configure so it expires after 12 hours
 	session := sessions.New([]byte(*secret))
 	session.Lifetime = 12 * time.Hour
+	session.Secure = true // Set secure flaf for sessions cookies
 
 	// Init an new instance of the application containing dependencies
 	// Initialize a mysql.SnippetModel instance and add it to the application
@@ -86,7 +87,7 @@ func main() {
 	// Call the ListenAndServe() method on our new http.Server struct.
 	// If it returns an error then log it and exit the program.
 	// `err =` instead of `err :=` because its declared already above
-	err = srv.ListenAndServe()
+	err = srv.ListenAndServeTLS("./tls/cert.pem", "./tls/key.pem")
 	errorLog.Fatal(err)
 }
 
