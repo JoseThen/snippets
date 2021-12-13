@@ -40,6 +40,8 @@ func (app *application) showSnippet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Pass the flash message to the template now
+
 	app.render(w, r, "show.page.tmpl", &templateData{Snippet: snippet})
 }
 
@@ -74,6 +76,9 @@ func (app *application) createSnippet(w http.ResponseWriter, r *http.Request) {
 		app.serverError(w, err)
 		return
 	}
+
+	// Use the Put() method to add a notification of saved snippet.
+	app.session.Put(r, "flash", "Snippet successfully created!")
 
 	http.Redirect(w, r, fmt.Sprintf("/snippet/%d", id), http.StatusSeeOther)
 }

@@ -13,6 +13,7 @@ import (
 // Will add more fields eventually
 type templateData struct {
 	CurrentYear int
+	Flash       string
 	// Update the templateData fields, removing the individual FormData and
 	// FormErrors fields and replacing them with a single Form field.
 	Form     *forms.Form
