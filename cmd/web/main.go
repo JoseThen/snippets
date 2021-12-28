@@ -22,6 +22,7 @@ type application struct {
 	session       *sessions.Session
 	snippets      *mysql.SnippetModel
 	templateCache map[string]*template.Template
+	users         *mysql.UserModel
 }
 
 func main() {
@@ -71,6 +72,8 @@ func main() {
 		session:       session,
 		snippets:      &mysql.SnippetModel{DB: db},
 		templateCache: templateCache,
+		// Add users to application struct
+		users: &mysql.UserModel{DB: db},
 	}
 
 	// Init a tls.Config struct to hold non default tls settings
