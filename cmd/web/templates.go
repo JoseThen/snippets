@@ -12,6 +12,7 @@ import (
 // Define a templateData type to a pass to potential templates.
 // Will add more fields eventually
 type templateData struct {
+	CSRFToken       string
 	CurrentYear     int
 	Flash           string
 	IsAuthenticated bool
